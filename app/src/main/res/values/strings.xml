@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 Deep Dive Coding/CNM Ingenuity, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0>
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+
+  <string name="app_name">Permissions Demo</string>
+
+  <!--
+    Title of the dialog displaying rationale(s) for required permission(s). This resource must be
+    present for the build to succeed.
+  -->
+  <string name="permissions_dialog_title">Permissions Info</string>
+
+  <!--
+    Permission rationales, each named using the lowercase version of the permission name, followed
+    by "_explanation". If the explanation is absent for a given permission, the permission name is
+    displayed as the rationale.
+  -->
+  <string name="internet_explanation">This app needs to access the internet because &#x2026;</string>
+  <string name="read_contacts_explanation">This app uses your contacts, to &#x2026;</string>
+  <string name="read_external_storage_explanation">This app needs to read external files, in order to &#x2026;</string>
+  <string name="access_fine_location_explanation">This app uses your location info to &#x2026;</string>
+
+</resources>
