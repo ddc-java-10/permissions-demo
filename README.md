@@ -2,7 +2,7 @@
 
 ## Overview
 
-Many (possibly most) apps require one or more permissions to be granted. These are specified via `<use-permission>` elements in `AndroidManifest.xml`. For some permissions, the grants occur on installation; for others&mdash;considered "dangerous" permissions&mdash;the user must explicitly grant the permission while the app is running. Requesting permission from the user isn't difficult, but implementing the interaction can be tricky. The [`PermissionsService`](app/src/main/java/edu/cnm/deepdive/permissionsdemo/service/PermissionsService.java) class in this project implements a basic, but fairly typical, interaction flow. It may be dropped (along with at least one required `string` value resource) directly into an Android Jetpack-based project; alternatively, it may be used as a starting point for implementing a different permission interaction flow.
+Many (possibly most) apps require one or more permissions to be granted. These are specified via `<uses-permission>` elements in `AndroidManifest.xml`. For some permissions, the grants occur on installation; for others&mdash;considered "dangerous" permissions&mdash;the user must explicitly grant the permission while the app is running. Requesting permission from the user isn't difficult, but implementing the interaction can be tricky. The [`PermissionsService`](app/src/main/java/edu/cnm/deepdive/permissionsdemo/service/PermissionsService.java) class in this project implements a basic, but fairly typical, interaction flow. It may be dropped (along with at least one required `string` value resource) directly into an Android Jetpack-based project; alternatively, it may be used as a starting point for implementing a different permission interaction flow.
 
 The project includes not only the [`PermissionsService`](app/src/main/java/edu/cnm/deepdive/permissionsdemo/service/PermissionsService.java) class (and the required `string` resource named `permissions_dialog_title`), but also an example of its use, in `MainActivity`.
 
@@ -34,6 +34,22 @@ To check &amp; request (as necessary) permissions with the `PermissionsService`,
 
 An example invocation of `PermissionsService.checkPermissions` is in the `MainActivity.checkPermissionsOnce` method, which is itself invoked by`MainActivity.onCreate`.  
 
+### Displaying custom explanation text for permissions
+
+In the permissions interaction flow recommended by Google (which is the flow implemented here), if there are permissions that the user has previously declined to grant, _but has not instructed Android not to request again_, the app may display the rationale or explanation for these permissions to the user, prior to requesting the permissions again.
+
+`PermissionsService` automatically displays an `AlertDialog` with this text, constructed from the list of previously-denied permissions in the following manner:
+
+* The permission name is split into parts on the `'.'` character&mdash;e.g. `"android.permission.INTERNET"` is used to create a `String[]` containing the values `{"android", "permission", "INTERNET"}`.
+
+* A `string` value resource name is constructed from final element of the name parts array, converted to lower case, prepended to `"_explanation"`. In the example above, the `string` resource name would be `internet_explanation`. 
+
+* If a `string` resource exists with the name constructed as described above, the value of that resource is used as the explanation text; otherwise, the full permission name (e.g. `"android.permission.INTERNET"`) is used.
+
+* The explanation text for all such permissions is combined, with the `'\n'` (new line) character between them. The result of this join operation is the text displayed to the user in an `AlertDialog`.
+
+The `values/strings.xml` resource file in this project has sample explanations (mostly just placeholder text) for all of the permissions specified in `AndroidManifest.xml`.  
+
 ### Receiving permission grant results
 
 If `PermissionsService.checkPermissions` determines that one or more permissions must be requested from the user, the standard Android permissions dialog will be be displayed (possibly following the display of an information dialog, stating the rationale for any such permission previously denied by the user). After the user selects the desired action (**Deny** or **Allow**) for all of the permissions in question, the activity's `onRequestPermissionsResult` method is invoked. In general, all that method will need to do is check the value of the `requestCode` parameter, and&mdash;if it matches the value passed in the `checkPermissions` invocation&mdash;invoke the `PermissionsService.updatePermissions` method.
@@ -45,7 +61,7 @@ See the `MainActivity.onRequestPermissionsResult` method for an example.
 
 `PermissionsService` includes a `getPermissions()` method that returns `LiveData<Set<String>>`. The `LiveData.observe` method can be invoked on this return value, to specify an `Observer` of these permissions. Such an observer could hide or display controls in the UI, display additional messages (as `Toast`, `Snackbar`, or `AlertDialog` instances), or even stop the app completely (e.g. using `finishAndRemoveTask()`) if the granted permissions are insufficient for normal operation of the app.
 
-An example of such an `Observer` (written as a lambda) can be seen in `MainActivity.observePermissions`, invoked from `MainActivity.onCreate`. In this example, the set of granted permissions are used to populate an `ArrayAdapter<String>`, which in turn supplies the contents of a `ListView`.
+An example of such an `Observer` (written as a lambda) can be seen in `MainActivity.observePermissions`, invoked from `MainActivity.onCreate`. In this example, the set of granted permissions are used to populate an `ArrayAdapter<String>`, which in turn supplies the contents of a `ListView`. (The `ListView` displays a subset of the permissions specified in `<uses-permission>` elements of `AndroidManifest.xml`. In this project, that file includes 4 such elements&mdash;3 of which are considered dangerous, requiring explicit granting of permission by the user.)
 
 ### Avoiding repeated permission requests on configuration changes
 
